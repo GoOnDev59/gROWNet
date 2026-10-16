@@ -38,6 +38,8 @@ public class User {
 
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)
     private Role role = Role.STUDENT;
+    @Column(nullable = false)
+    private boolean approved = false;
 
     public User() {}
     public Long getId() { return id; }
@@ -58,4 +60,6 @@ public class User {
     public void setBio(String bio) { this.bio = bio; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public boolean isApproved() { return approved; }
+public void setApproved(boolean approved) { this.approved = approved; }
 }

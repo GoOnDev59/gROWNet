@@ -1,2 +1,21 @@
 
 backend/.env
+$rules = @(
+    ".env",
+    ".env.*",
+    "!.env.example",
+    "**/target/",
+    ".vscode/",
+    ".idea/"
+)
+
+$path = Join-Path (Get-Location) ".gitignore"
+$content = Get-Content $path
+
+foreach ($rule in $rules) {
+    if ($content -notcontains $rule) {
+        Add-Content -Path $path -Value $rule
+    }
+}
+
+Write-Host "Updated .gitignore without removing existing rules."
