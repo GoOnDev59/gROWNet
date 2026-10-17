@@ -9,25 +9,93 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class InternshipService {
+
     private final InternshipRepository internships;
     private final UserRepository users;
-    public InternshipService(InternshipRepository internships, UserRepository users) { this.internships = internships; this.users = users; }
-    @Transactional(readOnly = true) public List<Dtos.InternshipResponse> list() { return internships.findByVerifiedTrue().stream().map(Dtos.InternshipResponse::from).toList(); }
-    @Transactional(readOnly = true) public Dtos.InternshipResponse get(Long id) {
-        Internship i = internships.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Internship not found."));
-        if (!i.isVerified()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Internship not found.");
+
+    public InternshipService(InternshipRepository internships, UserRepository users) {
+        this.internships = internships;
+        this.users = users;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Dtos.InternshipResponse> list() {
+        return list(null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Dtos.InternshipResponse> list(String keyword, String location, String skill) {
+        Stream<Internship> results = internships.findByVerifiedTrue().stream();
+
+        if (hasText(keyword)) {
+            results = results.filter(i ->
+                    contains(i.getTitle(), keyword)
+                    || contains(i.getCompany(), keyword)
+                    || contains(i.getDescription(), keyword));
+        }
+
+        if (hasText(location)) {
+            results = results.filter(i -> contains(i.getLocation(), location));
+        }
+
+        if (hasText(skill)) {
+            results = results.filter(i -> contains(i.getSkillsRequired(), skill));
+        }
+
+        return results.map(Dtos.InternshipResponse::from).toList();
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private boolean contains(String value, String query) {
+        return value != null
+                && value.toLowerCase().contains(query.trim().toLowerCase());
+    }
+
+    @Transactional(readOnly = true)
+    public Dtos.InternshipResponse get(Long id) {
+        Internship i = internships.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Internship not found."));
+
+        if (!i.isVerified()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Internship not found.");
+        }
+
         return Dtos.InternshipResponse.from(i);
     }
-    @Transactional public Dtos.InternshipResponse create(String email, Dtos.InternshipRequest r) {
-        User recruiter = users.findByEmailIgnoreCase(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter not found."));
-        if (recruiter.getRole() != User.Role.RECRUITER) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only recruiters can create internships.");
+
+    @Transactional
+    public Dtos.InternshipResponse create(String email, Dtos.InternshipRequest r) {
+        User recruiter = users.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Recruiter not found."));
+
+        if (recruiter.getRole() != User.Role.RECRUITER) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Only recruiters can create internships.");
+        }
+
         Internship i = new Internship();
-        i.setTitle(r.title().trim()); i.setCompany(r.company().trim()); i.setLocation(r.location()); i.setStipend(r.stipend());
-        i.setDescription(r.description()); i.setSkillsRequired(r.skillsRequired()); i.setDeadline(r.deadline()); i.setRecruiter(recruiter); i.setVerified(false);
+        i.setTitle(r.title().trim());
+        i.setCompany(r.company().trim());
+        i.setLocation(r.location());
+        i.setStipend(r.stipend());
+        i.setDescription(r.description());
+        i.setSkillsRequired(r.skillsRequired());
+        i.setDeadline(r.deadline());
+        i.setRecruiter(recruiter);
+        i.setVerified(false);
+
         return Dtos.InternshipResponse.from(internships.save(i));
     }
 }
