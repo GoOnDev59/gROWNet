@@ -1,5 +1,6 @@
 package com.grownet.dto;
 
+import com.grownet.DeadlineService;
 import com.grownet.entity.Internship;
 import com.grownet.entity.User;
 import jakarta.validation.constraints.Email;
@@ -33,10 +34,18 @@ public final class Dtos {
                                     @Size(max=1500) String skillsRequired,
                                     LocalDate deadline) {}
     public record InternshipResponse(Long id, String title, String company, String location,
-                                     String stipend, String description, String skillsRequired,
-                                     LocalDate deadline, Long recruiterId, boolean verified) {
-        public static InternshipResponse from(Internship i) {
-            return new InternshipResponse(i.getId(), i.getTitle(), i.getCompany(), i.getLocation(), i.getStipend(), i.getDescription(), i.getSkillsRequired(), i.getDeadline(), i.getRecruiter().getId(), i.isVerified());
-        }
+                                 String stipend, String description, String skillsRequired,
+                                 LocalDate deadline, String deadlineStatus,
+                                 Long recruiterId, boolean verified) {
+    public static InternshipResponse from(Internship i) {
+        String status = new DeadlineService().categorize(i.getDeadline()).name();
+
+        return new InternshipResponse(
+                i.getId(), i.getTitle(), i.getCompany(), i.getLocation(),
+                i.getStipend(), i.getDescription(), i.getSkillsRequired(),
+                i.getDeadline(), status, i.getRecruiter().getId(), i.isVerified()
+        );
     }
+}
+
 }

@@ -1,7 +1,7 @@
-
 package com.grownet.controller;
 
 import com.grownet.dto.Dtos;
+import com.grownet.service.InternshipComparisonService;
 import com.grownet.service.InternshipService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,9 +15,13 @@ import java.util.List;
 public class InternshipController {
 
     private final InternshipService internshipService;
+    private final InternshipComparisonService comparisonService;
 
-    public InternshipController(InternshipService internshipService) {
+    public InternshipController(
+            InternshipService internshipService,
+            InternshipComparisonService comparisonService) {
         this.internshipService = internshipService;
+        this.comparisonService = comparisonService;
     }
 
     @GetMapping
@@ -26,6 +30,12 @@ public class InternshipController {
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String skill) {
         return internshipService.list(keyword, location, skill);
+    }
+
+    @GetMapping("/compare")
+    public List<Dtos.InternshipResponse> compare(
+            @RequestParam List<Long> ids) {
+        return comparisonService.compare(ids);
     }
 
     @GetMapping("/{id}")
