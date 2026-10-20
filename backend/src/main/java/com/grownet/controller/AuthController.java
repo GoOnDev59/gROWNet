@@ -1,3 +1,4 @@
+
 package com.grownet.controller;
 
 import com.grownet.dto.Dtos;
@@ -9,10 +10,37 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     private final AuthService authService;
-    public AuthController(AuthService authService) { this.authService = authService; }
-    @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED)
-    public Dtos.MessageResponse register(@Valid @RequestBody Dtos.RegisterRequest request) { authService.register(request); return new Dtos.MessageResponse("Registration successful. You can now log in."); }
-    @PostMapping("/login") public Dtos.AuthResponse login(@Valid @RequestBody Dtos.LoginRequest request) { return authService.login(request); }
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Dtos.MessageResponse register(
+            @Valid @RequestBody Dtos.RegisterRequest request) {
+        authService.register(request);
+        return new Dtos.MessageResponse(
+                "Registration successful. You can now log in.");
+    }
+
+    @PostMapping("/login")
+    public Dtos.AuthResponse login(
+            @Valid @RequestBody Dtos.LoginRequest request) {
+        return authService.login(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public Dtos.MessageResponse forgotPassword(
+            @Valid @RequestBody Dtos.ForgotPasswordRequest request) {
+        return authService.requestPasswordReset(request);
+    }
+
+    @PostMapping("/reset-password")
+    public Dtos.MessageResponse resetPassword(
+            @Valid @RequestBody Dtos.ResetPasswordRequest request) {
+        return authService.resetPassword(request);
+    }
 }
-                        

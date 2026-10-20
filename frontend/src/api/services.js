@@ -27,3 +27,8 @@ export const admin = {
   approveInternship: (id) => api('/api/admin/internships/' + id + '/approve', { method: 'PUT' }),
   rejectInternship: (id) => api('/api/admin/internships/' + id + '/reject', { method: 'PUT' }),
 };
+
+export const applications = {
+  apply: (internshipId) => api('/api/applications/' + encodeURIComponent(internshipId), { method: 'POST' }),
+  my: () => api('/api/applications/my'),
+};

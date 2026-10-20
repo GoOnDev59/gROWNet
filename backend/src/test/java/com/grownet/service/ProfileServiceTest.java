@@ -84,7 +84,8 @@ class ProfileServiceTest {
                         "Java, Spring Boot, MySQL",
                         null,
                         null,
-                        "Backend developer"
+                        "Backend developer",
+                        null
                 );
 
         Dtos.SafeUser result = profileService.update(
@@ -107,7 +108,7 @@ class ProfileServiceTest {
 
         Dtos.ProfileUpdateRequest request =
                 new Dtos.ProfileUpdateRequest(
-                        "   ", null, null, null, null
+                        "   ", null, null, null, null, null
                 );
 
         ResponseStatusException exception = assertThrows(
@@ -128,7 +129,7 @@ class ProfileServiceTest {
 
         Dtos.ProfileUpdateRequest request =
                 new Dtos.ProfileUpdateRequest(
-                        "New Name", null, null, null, null
+                        "New Name", null, null, null, null, null
                 );
 
         ResponseStatusException exception = assertThrows(
