@@ -5,6 +5,7 @@ import com.grownet.entity.Internship;
 import com.grownet.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -15,9 +16,22 @@ public final class Dtos {
     private Dtos() {}
 
     public record RegisterRequest(
-            @NotBlank @Size(max = 100) String fullName,
-            @NotBlank @Email @Size(max = 254) String email,
-            @NotBlank @Size(min = 8, max = 72) String password) {}
+            @NotBlank
+            @Size(max = 100)
+            @Pattern(
+                    regexp = "^[A-Za-z]+(?:[ '-][A-Za-z]+)*$",
+                    message = "Full name can contain only letters, spaces, apostrophes, and hyphens"
+            )
+            String fullName,
+
+            @NotBlank
+            @Email
+            @Size(max = 254)
+            String email,
+
+            @NotBlank
+            @Size(min = 8, max = 72)
+            String password) {}
 
     public record LoginRequest(
             @NotBlank @Email String email,
@@ -69,7 +83,13 @@ public final class Dtos {
             @NotBlank @Size(min = 8, max = 72) String newPassword) {}
 
     public record ProfileUpdateRequest(
-            @Size(max = 100) String fullName,
+            @Pattern(
+                    regexp = "^[A-Za-z]+(?:[ '-][A-Za-z]+)*$",
+                    message = "Full name can contain only letters, spaces, apostrophes, and hyphens"
+            )
+            @Size(max = 100)
+            String fullName,
+
             @Size(max = 1500) String skills,
             @Size(max = 150) String college,
             @Size(max = 150) String branch,
